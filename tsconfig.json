@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    /* === Output settings === */ "outDir": "./dist",
+    "rootDir": "./src",
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    /* === Type checking === */ "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    /* === Source maps for debugging === */ "sourceMap": true,
+    /* === Experimental === */ "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*", "utils/**/*"],
+  "exclude": ["node_modules", "dist", "coverage"]
+}
