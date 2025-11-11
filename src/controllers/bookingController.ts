@@ -61,16 +61,48 @@ export const createBooking = async (req: ClientAuthRequest, res: Response) => {
 };
 
 // Get all bookings (admin)
+// export const getBookings = async (req: Request, res: Response) => {
+//   try {
+//     const bookings = await Booking.find()
+//       .sort({ createdAt: -1 })
+//       .populate([
+//         { path: "client", select: "name email" },
+//         { path: "handyman", select: "name rating" },
+//       ]);
+//     res.json(bookings);
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to fetch bookings", error });
+//   }
+// };
+// Get all bookings (admin) — with pagination
 export const getBookings = async (req: Request, res: Response) => {
   try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    // Count total for pagination
+    const total = await Booking.countDocuments();
+
     const bookings = await Booking.find()
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate([
         { path: "client", select: "name email" },
         { path: "handyman", select: "name rating" },
       ]);
-    res.json(bookings);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      bookings,
+      totalPages,
+      currentPage: page,
+      total,
+    });
   } catch (error) {
+    console.error("Error fetching bookings:", error);
     res.status(500).json({ message: "Failed to fetch bookings", error });
   }
 };

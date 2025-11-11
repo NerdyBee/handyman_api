@@ -7,6 +7,7 @@ import {
   deleteHandyman,
   getTopRatedHandymen,
   getTopRatedByService,
+  getHandymenByService,
 } from "../controllers/handymanController";
 import { protect, authorizeRoles } from "../middleware/auth";
 import { upload } from "../config/upload";
@@ -16,12 +17,26 @@ const router = express.Router();
 // Public routes
 router.get("/top-rated", getTopRatedHandymen); // 👈 must come before "/:slug"
 router.get("/top-rated-by-service", getTopRatedByService);
+router.get("/service/:serviceId", protect, getHandymenByService);
 router.get("/", listHandymen);
 router.get("/:slug", getHandymanBySlug);
 
 // Admin routes
-router.post("/", protect, authorizeRoles("admin"), createHandyman);
-router.put("/:id", protect, authorizeRoles("admin"), updateHandyman);
+router.post(
+  "/",
+  protect,
+  authorizeRoles("admin"),
+  upload.single("image"),
+  createHandyman
+);
+router.put(
+  "/:id",
+  protect,
+  authorizeRoles("admin"),
+  upload.single("image"),
+  updateHandyman
+);
+
 router.delete("/:id", protect, authorizeRoles("admin"), deleteHandyman);
 
 export default router;

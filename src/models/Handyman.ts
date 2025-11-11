@@ -1,10 +1,10 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IHandyman extends Document {
   name: string;
   slug: string;
   image?: string;
-  services: string;
+  services: Types.ObjectId[]; // 👈 array of service IDs
   specialties: string[];
   rating: number;
   reviewsCount: number;
@@ -32,7 +32,7 @@ const HandymanSchema = new Schema<IHandyman>(
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
     image: String,
-    services: String,
+    services: [{ type: Schema.Types.ObjectId, ref: "Service" }], // 👈 FIXED
     specialties: [String],
     rating: Number,
     reviewsCount: Number,

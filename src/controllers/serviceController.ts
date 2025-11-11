@@ -1,23 +1,43 @@
 import { Request, Response } from "express";
-import { validationResult } from "express-validator";
+import { body, validationResult } from "express-validator";
 import Service from "../models/Service";
+import Handyman from "../models/Handyman"; // 👈 import your handyman model
 
-// 🔹 GET /api/services
-// export const listServices = async (_req: Request, res: Response) => {
+// export async function listServices(req: Request, res: Response) {
 //   try {
-//     const services = await Service.find();
+//     const services = await Service.find(
+//       {},
+//       "title description price category icon"
+//     );
 //     res.json(services);
 //   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err });
+//     console.error("Error fetching services:", err);
+//     res.status(500).json({ message: "Server error" });
 //   }
-// };
+// }
+
 export async function listServices(req: Request, res: Response) {
   try {
-    const services = await Service.find(
-      {},
-      "title description price category icon"
-    );
-    res.json(services);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [services, total] = await Promise.all([
+      Service.find({}, "title description price category icon")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }),
+      Service.countDocuments(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.json({
+      services,
+      currentPage: page,
+      totalPages,
+      total,
+    });
   } catch (err) {
     console.error("Error fetching services:", err);
     res.status(500).json({ message: "Server error" });
@@ -104,5 +124,25 @@ export const deleteService = async (req: Request, res: Response) => {
     res.json({ message: "Service deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Failed to delete service", error: err });
+  }
+};
+
+// 🔹 GET /api/services/:id/handymen
+export const getServiceHandymen = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // ensure service exists
+    const service = await Service.findById(id);
+    if (!service) return res.status(404).json({ message: "Service not found" });
+
+    // get handymen linked to that service
+    const handymen = await Handyman.find({ services: id }).select(
+      "name phone rating skills"
+    );
+    res.json(handymen);
+  } catch (error) {
+    console.error("Failed to get service handymen:", error);
+    res.status(500).json({ message: "Failed to fetch handymen" });
   }
 };

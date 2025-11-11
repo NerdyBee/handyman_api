@@ -4,8 +4,9 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
-  role: "client" | "handyman" | "admin";
+  role: "super admin" | "admin";
   phone?: string;
+  status: "Active" | "Inactive";
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -17,9 +18,15 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["client", "handyman", "admin"],
-      default: "client",
+      enum: ["super admin", "admin"],
+      default: "admin",
     },
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
+    },
+
     phone: { type: String },
   },
   { timestamps: true }

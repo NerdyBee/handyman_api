@@ -229,3 +229,100 @@ export const getClientBookings = async (
     res.status(500).json({ message: "Failed to fetch client bookings", error });
   }
 };
+
+// export const getClients = async (req: Request, res: Response) => {
+//   try {
+//     const page = parseInt(req.query.page as string) || 1;
+//     const limit = parseInt(req.query.limit as string) || 10;
+//     const skip = (page - 1) * limit;
+
+//     const total = await Client.countDocuments();
+//     const clients = await Client.find()
+//       .select("-password")
+//       .skip(skip)
+//       .limit(limit)
+//       .sort({ createdAt: -1 });
+
+//     res.json({
+//       clients,
+//       totalClients: total,
+//       totalPages: Math.ceil(total / limit),
+//       currentPage: page,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to load clients", error });
+//   }
+// };
+
+// GET /api/clients
+export const getClients = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    const search = (req.query.search as string) || "";
+    const region = (req.query.region as string) || "";
+    const area = (req.query.area as string) || "";
+
+    const query: any = {};
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (region) query.region = region;
+    if (area) query.area = area;
+
+    const total = await Client.countDocuments(query);
+    const clients = await Client.find(query)
+      .select("-password")
+      .populate("region", "name")
+      .populate("area", "name")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    res.json({
+      clients,
+      totalClients: total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to load clients", error });
+  }
+};
+
+// PUT /api/clients/:id
+export const updateClientByAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    delete updates.password;
+
+    const client = await Client.findByIdAndUpdate(id, updates, { new: true });
+    if (!client) return res.status(404).json({ message: "Client not found" });
+
+    res.json({ message: "Client updated", client });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update client", error });
+  }
+};
+
+// DELETE /api/clients/:id
+export const deleteClientByAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const client = await Client.findByIdAndDelete(id);
+    if (!client) return res.status(404).json({ message: "Client not found" });
+
+    res.json({ message: "Client deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete client", error });
+  }
+};

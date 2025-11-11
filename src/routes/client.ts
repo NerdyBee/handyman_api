@@ -6,8 +6,12 @@ import {
   changeClientPassword,
   getClientProfile,
   getClientBookings,
+  getClients,
+  updateClientByAdmin,
+  deleteClientByAdmin,
 } from "../controllers/clientController";
 import { clientProtect } from "../middleware/clientAuth"; // ✅ use this
+import { protect } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -25,5 +29,14 @@ router.get("/bookings", clientProtect, getClientBookings); // ✅ new route
 
 router.put("/:id", updateClientProfile);
 router.put("/:id/password", changeClientPassword);
+
+// GET /api/admin/clients?page=1&limit=10
+router.get("/", protect, getClients);
+
+// PUT /api/admin/clients/:id
+router.put("/:id", protect, updateClientByAdmin);
+
+// DELETE /api/admin/clients/:id
+router.delete("/:id", protect, deleteClientByAdmin);
 
 export default router;

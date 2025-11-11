@@ -7,6 +7,7 @@ import {
   updateService,
   deleteService,
   getServiceByTitle,
+  getServiceHandymen,
 } from "../controllers/serviceController";
 import { protect, authorizeRoles } from "../middleware/auth";
 
@@ -29,5 +30,11 @@ router.post(
 router.put("/:id", protect, authorizeRoles("admin"), updateService);
 
 router.delete("/:id", protect, authorizeRoles("admin"), deleteService);
+router.get(
+  "/:id/handymen",
+  protect,
+  authorizeRoles("admin"),
+  getServiceHandymen
+);
 
 export default router;

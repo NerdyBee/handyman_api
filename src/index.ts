@@ -1,9 +1,8 @@
-import "dotenv/config";
 import express from "express";
 import path from "path";
 import corsMiddleware from "./config/cors";
-import "express-async-errors";
 import { connectDB } from "./config/db";
+import "express-async-errors";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import serviceRoutes from "./routes/services";
@@ -17,16 +16,25 @@ import { errorHandler } from "./middleware/errorHandler";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ✅ CORS
 app.use(corsMiddleware);
-app.use(express.json());
 
+// ✅ Parse JSON only if it’s JSON — skip for FormData
+app.use((req, res, next) => {
+  if (req.is("application/json")) {
+    express.json()(req, res, next);
+  } else {
+    next();
+  }
+});
+
+// ✅ Serve static uploads
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-// Connect DB
+// ✅ Connect DB
 connectDB();
 
-// Routes
+// ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/services", serviceRoutes);
@@ -36,10 +44,11 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/locations", locationRoutes);
 
-// Health
+// ✅ Health Check
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
-// Error handler (last)
+// ✅ Error handler
 app.use(errorHandler);
 
+// ✅ Start Server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
