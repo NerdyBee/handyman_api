@@ -3,19 +3,6 @@ import { body, validationResult } from "express-validator";
 import Service from "../models/Service";
 import Handyman from "../models/Handyman"; // 👈 import your handyman model
 
-// export async function listServices(req: Request, res: Response) {
-//   try {
-//     const services = await Service.find(
-//       {},
-//       "title description price category icon"
-//     );
-//     res.json(services);
-//   } catch (err) {
-//     console.error("Error fetching services:", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// }
-
 export async function listServices(req: Request, res: Response) {
   try {
     const page = parseInt(req.query.page as string) || 1;
