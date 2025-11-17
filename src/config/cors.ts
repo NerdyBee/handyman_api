@@ -9,7 +9,7 @@ const allowedOrigins = [
   "http://localhost:3001",
   "http://127.0.0.1:3001",
   "https://incandescent-moonbeam-e7f37b.netlify.app", // your Netlify frontend
-  "https://handyman-admin-portal.netlify.app/ ", // admin portal
+  "https://handyman-admin-portal.netlify.app", // admin portal
 ];
 
 const corsOptions: cors.CorsOptions = {
